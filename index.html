@@ -346,7 +346,8 @@ details.head .in{padding:0 14px 14px;display:grid;gap:12px}
   <div class="card-h"><span class="n"><svg class="svg-ic" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v11h18V9M9 20v-6h6v6"/></svg></span><div><h2>المنشأة وسبب الإنذار</h2><p>مع صورة واضحة للرخصة التجارية</p></div></div>
   <div class="card-b">
     <div class="f"><label class="req" for="facility">اسم المنشأة</label><input id="facility" data-k="facility" list="facList" autocomplete="off" placeholder="مثال: محل … للعطور"></div>
-    <div class="f"><label class="req" for="license" id="licLbl">رقم رخصة المنشأة</label><input id="license" data-k="license" inputmode="numeric"></div>
+    <div class="f"><label class="req" for="license" id="licLbl">رقم رخصة المنشأة</label><input id="license" data-k="license" inputmode="numeric">
+      <label class="toggle" style="padding:8px 14px"><span style="font-size:13.5px">لا يوجد رقم رخصة</span><input type="checkbox" id="noLicense" data-k="noLicense"><span class="sw"></span></label></div>
     <div class="grid2 stack-sm">
       <div class="f"><span class="lbl req">المنطقة</span>
         <div class="seg" data-k="area" id="area"><button type="button" data-v="ديرة">ديرة</button><button type="button" data-v="بر دبي">بر دبي</button></div></div>
@@ -600,7 +601,7 @@ const idb=(()=>{let dbp;try{dbp=new Promise((res,rej)=>{const r=indexedDB.open('
 const ls={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
 
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-const CAUSES=['خلل فني في النظام','دخول موظف أو صاحب المحل','انقطاع التيار الكهربائي','ضعف بطارية الجهاز','تشغيل خاطئ','تجربة وهمية','أخرى'];
+const CAUSES=['خلل فني في النظام','خطأ من موظف','انقطاع التيار الكهربائي','ضعف في بطارية الجهاز','تجربة وهمية','أخرى'];
 const MOCK='تجربة وهمية',DEPT='أمن الأسواق التجارية';const isMock=()=>S.cause===MOCK;
 const facTypeTxt=o=>o.facType==='أخرى'?('أخرى'+((o.facTypeOther||'').trim()?' ('+o.facTypeOther.trim()+')':'')):(o.facType||'');
 const CREW=[['leader','مسؤول الدورية'],['driver','سائق الدورية'],['c1','مرافق الدورية']];
@@ -643,8 +644,13 @@ function derive(){
   const mk=isMock();
   $('#failBox').style.display=S.result==='اخفاق'?'grid':'none';
   $('#mockNote').classList.toggle('show',mk);
-  ['#licPhotoBox','#tOwnerBox','#s4','#steps [data-t=s4]'].forEach(q=>{const el=$(q);if(el)el.hidden=mk});
-  $('#licLbl').classList.toggle('req',!mk);
+  ['#tOwnerBox','#s4','#steps [data-t=s4]'].forEach(q=>{const el=$(q);if(el)el.hidden=mk});
+  const noLic=!!S.noLicense;
+  $('#licPhotoBox').hidden=mk||noLic;
+  $('#licLbl').classList.toggle('req',!mk&&!noLic);
+  if(noLic&&S.license){S.license='';$('#license').value=''}
+  $('#license').disabled=noLic;$('#license').classList.toggle('dim',noLic);if(noLic)$('#license').classList.remove('invalid');
+  $('#licPhotoBox .lbl').classList.toggle('req',!!String(S.license||'').trim());
   $('#facTypeOtherBox').style.display=S.facType==='أخرى'?'grid':'none';
   $('#resHint').textContent=mk?'في التجربة الوهمية زمن المقيّم هو المعتمد، وهذي النتيجة للمقارنة فقط':'تُحدَّد تلقائياً حسب الزمن المعتمد (3 دقائق)، ويمكن تعديلها';
   $('#elapsed').textContent=S.elapsed||'—';
@@ -666,7 +672,7 @@ function derive(){
 }
 function summary(html){
   const g=v=>v&&String(v).trim(), m=html?(v=>v?`<mark>${esc(v)}</mark>`:'<span class="gap">…</span>'):(v=>v||'—');
-  const ft=g(facTypeTxt(S)),lic=isMock()&&!g(S.license)?'':`، رقم رخصة المنشأة ${m(g(S.license))}`,loc=[g(S.location),g(S.area)].filter(Boolean).join(' – ');
+  const ft=g(facTypeTxt(S)),lic=S.noLicense?'، ولا يوجد لها رقم رخصة':isMock()&&!g(S.license)?'':`، رقم رخصة المنشأة ${m(g(S.license))}`,loc=[g(S.location),g(S.area)].filter(Boolean).join(' – ');
   return `في يوم ${m(g(S.day))} الموافق ${m(g(S.date))} الساعة ${m(g(S.tReport))} ورد بلاغ من غرفة العمليات يفيد بوجود جرس إنذار في ${m(g(S.facility))}${ft?` (${m(ft)})`:''}${lic}، الكائنة في ${m(loc)}، وعند الانتقال تبيّن بأن سبب حالة جرس الإنذار: ${m(g(causeText()))}.`;
 }
 
@@ -677,7 +683,7 @@ function required(){
   const r=[['date','التاريخ'],['tReport','وقت البلاغ'],['tArrive','وقت الوصول'],['state','حالة المنشأة'],['facility','اسم المنشأة'],['area','المنطقة'],['facType','نوع المنشأة'],['cause','سبب الإنذار'],['leaderName','مسؤول الدورية'],['result','النتيجة النهائية']];
   r.unshift(['eventNo','رقم الحدث']);
   if(mk)return r;
-  r.splice(6,0,['license','رقم الرخصة']);r.splice(10,0,['photo:license','صورة الرخصة']);
+  if(!S.noLicense){r.splice(6,0,['license','رقم الرخصة (أو اختر «لا يوجد رقم رخصة»)']);if(String(S.license||'').trim())r.splice(10,0,['photo:license','صورة الرخصة'])}
   if(S.result==='اخفاق')r.push(['failReason','سبب الإخفاق']);
   if(!S.absent)r.push(['pName','اسم الشخص المخوّل'],['pId','رقم الهوية'],['pMobile','الهاتف المتحرك'],['photo:id','صورة الهوية (الوجه الأمامي)']);
   if(!S.absent&&!S.otherId)r.push(['photo:idBack','صورة الهوية (الوجه الخلفي)']);
@@ -887,6 +893,7 @@ function payload(){
   const keys=['failReason','eventNo','date','day','shift','cat','dept','patM','patQ','tReport','tArrive','mins','state','tOwner','facility','license','area','facType','facTypeOther','location','gps','note','absent','pName','pIdType','pIssuer','pId','pRole','pMobile','pPhone','result','headNote','hName','hNo','hRank','hDate'];
   const PERSON=['tOwner','absent','pName','pIdType','pIssuer','pId','pRole','pMobile','pPhone'];
   keys.forEach(k=>{if(mk&&PERSON.includes(k))return;if(k==='facTypeOther'&&S.facType!=='أخرى')return;const v=S[k];if(v!==''&&v!=null&&v!==false)o[k]=v});
+  if(S.noLicense)o.license='لا يوجد';
   if(mk)o.mock=1;
   o.cause=causeText();
   CREW.forEach(([k])=>['Name','No','Rank'].forEach(f=>{if(S[k+f])o[k+f]=S[k+f]}));
@@ -955,7 +962,7 @@ async function renderReport(){
   kv([['اليوم والتاريخ',(S.day||'')+'  '+(S.date||'')],['فترة الدوام / الفئة',[S.shift,S.cat].filter(Boolean).join(' / ')],['دورية م',S.patM],['دورية ق',S.patQ],['حالة المنشأة عند الوصول',S.state],['رقم الحدث',S.eventNo]]);
   sec('موجز البلاغ');
   {const ls=wrap(summary(false),IW-40,f(24,400));const extra=S.note?wrap('ملاحظة: '+S.note,IW-40,f(22,400)):[];const h=30+ls.length*44+(extra.length?extra.length*38+12:0)+14;rr(PAD,y,IW,h,12,'#fff',LN);ls.forEach((l,j)=>T(l,W-PAD-20,y+46+j*44,{s:24}));extra.forEach((l,j)=>T(l,W-PAD-20,y+46+ls.length*44+12+j*38,{s:22,c:MU}));y+=h+12;BR.push(y)}
-  kv([['اسم المنشأة',S.facility],['رقم الرخصة',S.license],['المنطقة',S.area],['نوع المنشأة',facTypeTxt(S)],['الموقع بالتفصيل',(S.location||'')+(S.gps?'   📍 '+S.gps.replace('https://maps.google.com/?q=','GPS ')+'':''),true],['سبب جرس الإنذار',causeText(),true]]);
+  kv([['اسم المنشأة',S.facility],['رقم الرخصة',S.noLicense?'لا يوجد':S.license],['المنطقة',S.area],['نوع المنشأة',facTypeTxt(S)],['الموقع بالتفصيل',(S.location||'')+(S.gps?'   📍 '+S.gps.replace('https://maps.google.com/?q=','GPS ')+'':''),true],['سبب جرس الإنذار',causeText(),true]]);
   if(!mk){sec('بيانات الشخص المخوّل في المنشأة');
   if(S.absent){kv([['الحالة','لم يحضر الشخص المخوّل',true]])}
   else kv([['الاسم',S.pName],['الصفة',S.pRole],['نوع الهوية',S.pIdType],['جهة الإصدار',S.pIssuer],['رقم الهوية',S.pId],['الهاتف المتحرك',S.pMobile],['هاتف المنشأة',S.pPhone]]);}
