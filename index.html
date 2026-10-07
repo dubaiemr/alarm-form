@@ -393,10 +393,15 @@ details.head .in{padding:0 14px 14px;display:grid;gap:12px}
         <div class="f"><label class="req" for="pMobile">الهاتف المتحرك</label><input type="tel" id="pMobile" data-k="pMobile" dir="ltr" style="text-align:right" placeholder="05X XXX XXXX"><span class="hint" id="mobHint"></span></div>
         <div class="f"><label for="pPhone">هاتف المنشأة</label><input type="tel" id="pPhone" data-k="pPhone" dir="ltr" style="text-align:right" placeholder="04 XXX XXXX"></div>
       </div>
-      <div class="f"><span class="lbl req">صورة الهوية</span>
+      <div class="f"><span class="lbl req">صورة الهوية – الوجه الأمامي</span>
         <label class="photo" id="ph-id"><input type="file" accept="image/*" data-photo="id">
-          <div class="ph"><svg viewBox="0 0 24 24"><path d="M3 8h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13.5" r="3.8"/></svg><b>امسح الهوية</b><span>حط الهوية على سطح غامق وبإضاءة جيدة</span></div>
+          <div class="ph"><svg viewBox="0 0 24 24"><path d="M3 8h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13.5" r="3.8"/></svg><b>امسح الوجه الأمامي</b><span>حط الهوية على سطح غامق وبإضاءة جيدة</span></div>
           <img alt=""><div class="tools"><span>✓ تم الإرفاق · اضغط للتبديل</span><button type="button" data-del="id">حذف</button></div>
+        </label></div>
+      <div class="f" id="idBackBox"><span class="lbl" id="idBackLbl">صورة الهوية – الوجه الخلفي</span>
+        <label class="photo" id="ph-idBack"><input type="file" accept="image/*" data-photo="idBack">
+          <div class="ph"><svg viewBox="0 0 24 24"><path d="M3 8h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13.5" r="3.8"/></svg><b>امسح الوجه الخلفي</b><span>اقلب الهوية وامسح الجهة الثانية</span></div>
+          <img alt=""><div class="tools"><span>✓ تم الإرفاق · اضغط للتبديل</span><button type="button" data-del="idBack">حذف</button></div>
         </label></div>
     </div>
   </div>
@@ -608,7 +613,7 @@ $('#crew').innerHTML=CREW.map(([k,r],i)=>`<div class="crew-row"><div class="role
 <div class="grid2"><input data-k="${k}No" placeholder="الرقم" inputmode="numeric"><input data-k="${k}Rank" placeholder="الرتبة" list="ranks"></div></div>`).join('');
 $('#causes').innerHTML=CAUSES.map(c=>`<button type="button" class="chip" data-v="${c}">${c}</button>`).join('');
 
-let S={}, P={id:'',license:''};
+let S={}, P={id:'',idBack:'',license:''};
 const fields=()=>$$('[data-k]').filter(e=>e.matches('input,select,textarea'));
 function collect(){
   fields().forEach(e=>S[e.dataset.k]=e.type==='checkbox'?e.checked:e.value);
@@ -620,7 +625,7 @@ function apply(){
   $$('.seg[data-k]').forEach(g=>g.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===S[g.dataset.k])));
   $$('#causes .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===S.cause));
   setGps(S.gps);
-  ['id','license'].forEach(k=>showPhoto(k));
+  ['id','idBack','license'].forEach(k=>showPhoto(k));
 }
 let saveT;
 function save(){collect();derive();idb.set(DRAFT,{S,P,sig:sigData()})}
@@ -647,6 +652,7 @@ function derive(){
   $('#personBox').classList.toggle('dim',!!S.absent);
   S.dept=DEPT;
   $('#idTypeBox').hidden=!S.otherId;
+  $('#idBackLbl').classList.toggle('req',!S.otherId);
   if(!S.otherId)S._idTouched=false;
   if(!S.otherId&&S.pIdType!=='بطاقة الهوية الإماراتية'){S.pIdType='بطاقة الهوية الإماراتية';$('#pIdType').value=S.pIdType}
   else if(S.otherId&&S.pIdType==='بطاقة الهوية الإماراتية'&&!S._idTouched){S.pIdType='جواز سفر';$('#pIdType').value=S.pIdType}
@@ -673,11 +679,12 @@ function required(){
   if(mk)return r;
   r.splice(6,0,['license','رقم الرخصة']);r.splice(10,0,['photo:license','صورة الرخصة']);
   if(S.result==='اخفاق')r.push(['failReason','سبب الإخفاق']);
-  if(!S.absent)r.push(['pName','اسم الشخص المخوّل'],['pId','رقم الهوية'],['pMobile','الهاتف المتحرك'],['photo:id','صورة الهوية']);
+  if(!S.absent)r.push(['pName','اسم الشخص المخوّل'],['pId','رقم الهوية'],['pMobile','الهاتف المتحرك'],['photo:id','صورة الهوية (الوجه الأمامي)']);
+  if(!S.absent&&!S.otherId)r.push(['photo:idBack','صورة الهوية (الوجه الخلفي)']);
   return r;
 }
 function filled(k){if(k.startsWith('photo:'))return !!P[k.slice(6)];if(k==='cause')return !!causeText();return !!String(S[k]||'').trim()}
-const SECT={s1:['date','eventNo'],s2:['tReport','tArrive','state'],s3:['facility','license','area','facType','cause','photo:license'],s4:['pName','pId','pMobile','photo:id'],s5:['leaderName'],s6:['result']};
+const SECT={s1:['date','eventNo'],s2:['tReport','tArrive','state'],s3:['facility','license','area','facType','cause','photo:license'],s4:['pName','pId','pMobile','photo:id','photo:idBack'],s5:['leaderName'],s6:['result']};
 function progress(){
   const req=required().map(x=>x[0]);
   $$('#steps .step').forEach(st=>{const ks=SECT[st.dataset.t].filter(k=>req.includes(k));const ok=ks.every(filled);st.classList.toggle('done',ok);st.querySelector('i').textContent=ok?'✓':st.dataset.t.slice(1)});
@@ -778,7 +785,7 @@ function warp(src,q){
   const L=(p,r)=>Math.hypot(p[0]-r[0],p[1]-r[1]);
   let W=Math.max(L(q[0],q[1]),L(q[3],q[2])),H=Math.max(L(q[0],q[3]),L(q[1],q[2]));
   /* snap to the document's real shape: ID card 85.6×54mm, trade license A4 */
-  if(SC.k==='id'){if(W>=H)H=W/1.586;else W=H/1.586}else{if(H>=W*.8)H=W*1.414;else W=H*1.414}
+  if(SC.k==='id'||SC.k==='idBack'){if(W>=H)H=W/1.586;else W=H/1.586}else{if(H>=W*.8)H=W*1.414;else W=H*1.414}
   const k=Math.min(1,1800/Math.max(W,H));W=Math.round(W*k);H=Math.round(H*k);
   const sw=src.width,sh=src.height,sd=src.getContext('2d',{willReadFrequently:true}).getImageData(0,0,sw,sh).data;
   const out=document.createElement('canvas');out.width=W;out.height=H;const ox=out.getContext('2d'),od=ox.createImageData(W,H),o=od.data,T=homog(q,W,H);
@@ -823,12 +830,12 @@ scv.addEventListener('pointerdown',e=>{const p=spos(e);let bi=-1,bd=1e9;SC.q.for
 scv.addEventListener('pointermove',e=>{if(drag<0)return;const p=spos(e);SC.q[drag]=[Math.max(0,Math.min(SC.src.width,p[0])),Math.max(0,Math.min(SC.src.height,p[1]))];drawScan(true)});
 ['pointerup','pointercancel'].forEach(ev=>scv.addEventListener(ev,()=>{drag=-1;drawScan(false)}));
 window.addEventListener('resize',()=>{if(scan.classList.contains('show')&&!scan.classList.contains('done'))drawScan(false)});
-function openScanner(k,c){SC.k=k;SC.src=c;SC.q=detect(c);SC.flt=k==='id'?'orig':'enh';scan.classList.remove('done');$$('#scanFlt button').forEach(b=>b.classList.toggle('on',b.dataset.f===SC.flt));
-  $('#scanTitle').textContent=k==='id'?'مسح الهوية':'مسح الرخصة التجارية';$('#scanHint').textContent='تأكد إن الزوايا الأربع على حواف المستند';scan.classList.add('show');requestAnimationFrame(()=>drawScan(false))}
+function openScanner(k,c){SC.k=k;SC.src=c;SC.q=detect(c);SC.flt=k==='license'?'enh':'orig';scan.classList.remove('done');$$('#scanFlt button').forEach(b=>b.classList.toggle('on',b.dataset.f===SC.flt));
+  $('#scanTitle').textContent=k==='id'?'مسح الهوية – الوجه الأمامي':k==='idBack'?'مسح الهوية – الوجه الخلفي':'مسح الرخصة التجارية';$('#scanHint').textContent='تأكد إن الزوايا الأربع على حواف المستند';scan.classList.add('show');requestAnimationFrame(()=>drawScan(false))}
 function rotate(){const c=SC.src,r=document.createElement('canvas');r.width=c.height;r.height=c.width;const x=r.getContext('2d');x.translate(r.width,0);x.rotate(Math.PI/2);x.drawImage(c,0,0);SC.src=r;SC.q=detect(r);drawScan(false)}
 let warped=null;
 async function process(){$('#busy').classList.add('show');await new Promise(r=>setTimeout(r,30));
-  try{warped=warp(SC.src,SC.q);if(warped.width<warped.height&&SC.k==='id'){const r=document.createElement('canvas');r.width=warped.height;r.height=warped.width;const x=r.getContext('2d');x.translate(0,r.height);x.rotate(-Math.PI/2);x.drawImage(warped,0,0);warped=r}
+  try{warped=warp(SC.src,SC.q);if(warped.width<warped.height&&SC.k!=='license'){const r=document.createElement('canvas');r.width=warped.height;r.height=warped.width;const x=r.getContext('2d');x.translate(0,r.height);x.rotate(-Math.PI/2);x.drawImage(warped,0,0);warped=r}
   applyFilter()}catch(e){console.error(e);toast('تعذر المسح')}$('#busy').classList.remove('show')}
 function applyFilter(){SC.out=enhance(warped,SC.flt).toDataURL('image/jpeg',.88);$('#scanRes').src=SC.out;scan.classList.add('done');$('#scanHint').textContent='اختر شكل المسح ثم اعتمده'}
 $('#scanNext').addEventListener('click',process);
@@ -958,7 +965,7 @@ async function renderReport(){
    let cx0=W-PAD;cols.forEach(([h,p])=>{T(h,cx0-16,y+33,{s:19,w:700,c:G});cx0-=IW*p});
    rows.forEach((r,j)=>{let px=W-PAD;const ry=y+50+j*52;if(j){x.fillStyle=LN;x.fillRect(PAD+10,ry,IW-20,1)}cols.forEach(([h,p],i)=>{T(r[i]||'—',px-16,ry+36,{s:22,w:i===1?700:400});px-=IW*p})});
    y+=54+rows.length*52+18;BR.push(y)}
-  if(!mk){const att=[];let pg=2;if(plic)att.push(`الرخصة التجارية (صفحة ${pg++})`);if(pid&&!S.absent)att.push(`هوية الشخص المخوّل (صفحة ${pg++})`);
+  if(!mk){const att=[];let pg=2;if(plic)att.push(`الرخصة التجارية (صفحة ${pg++})`);if((pid||P.idBack)&&!S.absent)att.push(`هوية الشخص المخوّل – الوجهين (صفحة ${pg++})`);
    if(att.length){rr(PAD,y,IW,64,12,GS,null);T('📎 المرفقات في نفس الملف: '+att.join('  ·  '),W-PAD-20,y+41,{s:21,w:700,c:G});y+=76;BR.push(y)}}
   if(S.headNote||S.hName){sec('ملاحظات رئيس القسم');kv([['الملاحظات',S.headNote,true],['الاسم',S.hName],['الرتبة / الرقم',[S.hRank,S.hNo].filter(Boolean).join(' / ')],['التاريخ',S.hDate]])}
   /* signature + footer */
@@ -996,9 +1003,13 @@ async function docPage(dataURL,title,logos){
   x.fillStyle='#0b5e3a';x.fillRect(0,124,Wp,6);
   x.font=`700 36px ${HFONT}`;x.fillStyle='#0b5e3a';x.textAlign='right';x.fillText(title,Wp-50,198);
   x.font=`400 24px ${FONT}`;x.fillStyle='#6a7872';x.fillText([S.eventNo?'حدث رقم '+S.eventNo:'',S.date,S.facility].filter(Boolean).join('  ·  '),Wp-50,238);
-  const im=await loadImg(dataURL);
-  if(im){const mw=Wp-100,mh=PH-300-80,s=Math.min(mw/im.width,mh/im.height),w=im.width*s,h=im.height*s,px=(Wp-w)/2,py=280;
-    x.fillStyle='rgba(0,0,0,.08)';x.fillRect(px+6,py+8,w,h);x.drawImage(im,px,py,w,h);x.strokeStyle='#d9e2dd';x.lineWidth=2;x.strokeRect(px,py,w,h)}
+  const list=(Array.isArray(dataURL)?dataURL:[[dataURL,'']]).filter(a=>a[0]);
+  const ims=await Promise.all(list.map(a=>loadImg(a[0]))),n=ims.length,LB=list.some(a=>a[1])?46:0,GAP=40;
+  const mh=(PH-280-80-(n-1)*GAP)/n-LB;let py=280;
+  ims.forEach((im,i)=>{if(!im)return;const mw=Wp-200,s=Math.min(mw/im.width,mh/im.height),w=im.width*s,h=im.height*s,px=(Wp-w)/2;
+    if(LB){x.font=`700 26px ${FONT}`;x.fillStyle='#0b5e3a';x.textAlign='center';x.fillText(list[i][1],Wp/2,py+30)}
+    const iy=py+LB;x.fillStyle='rgba(0,0,0,.08)';x.fillRect(px+6,iy+8,w,h);x.drawImage(im,px,iy,w,h);x.strokeStyle='#d9e2dd';x.lineWidth=2;x.strokeRect(px,iy,w,h);
+    py=iy+h+GAP});
   return pg;
 }
 function stampFooters(pages,label){const n=pages.length;pages.forEach((pg,i)=>{const x=pg.getContext('2d'),Wp=pg.width,k=Wp/1240;x.direction='rtl';
@@ -1309,7 +1320,7 @@ async function sendReport(){
     const rep=await renderReport();
     const pages=paginate(rep);
     if(P.license&&!isMock())pages.push(await docPage(P.license,'الرخصة التجارية',rep.logos));
-    if(P.id&&!S.absent&&!isMock())pages.push(await docPage(P.id,'هوية الشخص المخوّل',rep.logos));
+    if((P.id||P.idBack)&&!S.absent&&!isMock())pages.push(await docPage([[P.id,P.idBack?'الوجه الأمامي':''],[P.idBack,'الوجه الخلفي']],'هوية الشخص المخوّل',rep.logos));
     stampFooters(pages);
     const tag=(S.eventNo||'NA')+'_'+(S.date||todayISO());
     const pdf=await makePDF(pages,`${isMock()?'بلاغ تجربة وهمية':'بلاغ جرس إنذار'} ${S.eventNo||''} - ${S.facility||''} - ${S.date||''}`,dataCode());
@@ -1354,13 +1365,13 @@ $('#codeBtn').addEventListener('click',async()=>{const t=MODE==='ev'?evDataCode(
 /* new form */
 $('#newForm').addEventListener('click',async()=>{
   if(MODE==='ev'){if(!confirm('مسح بيانات التقييم الحالي؟ (بيانات المقيّم المحفوظة تبقى)'))return;await idb.del(EDRAFT);$$('#evView .invalid').forEach(e=>e.classList.remove('invalid'));$('#evAlert').classList.remove('show');await einit(true);window.scrollTo({top:0,behavior:'smooth'});return}
-  if(!confirm('مسح بيانات الاستمارة الحالية؟ (الطاقم المحفوظ يبقى)'))return;await idb.del(DRAFT);S={};P={id:'',license:''};fields().forEach(e=>e.type==='checkbox'?e.checked=false:e.value='');$('#pIdType').value='بطاقة الهوية الإماراتية';delete $('#shift').dataset.touched;cx.clearRect(0,0,cv.width,cv.height);hasSig=false;sigPending=null;$('#sigPh').style.display='';$$('.invalid').forEach(e=>e.classList.remove('invalid'));$('#alert').classList.remove('show');await init(true);window.scrollTo({top:0,behavior:'smooth'})});
+  if(!confirm('مسح بيانات الاستمارة الحالية؟ (الطاقم المحفوظ يبقى)'))return;await idb.del(DRAFT);S={};P={id:'',idBack:'',license:''};fields().forEach(e=>e.type==='checkbox'?e.checked=false:e.value='');$('#pIdType').value='بطاقة الهوية الإماراتية';delete $('#shift').dataset.touched;cx.clearRect(0,0,cv.width,cv.height);hasSig=false;sigPending=null;$('#sigPh').style.display='';$$('.invalid').forEach(e=>e.classList.remove('invalid'));$('#alert').classList.remove('show');await init(true);window.scrollTo({top:0,behavior:'smooth'})});
 
 /* init */
 async function init(fresh){
   let d=!fresh&&await idb.get(DRAFT);
   if(d&&d.S&&d.S.sentAt){await idb.del(DRAFT);d=null;if(MODE==='rep')setTimeout(()=>toast('تم مسح البلاغ المرسل سابقاً من الهاتف'),600)}
-  if(d&&d.S){S=d.S;P=d.P||P;apply()}
+  if(d&&d.S){S=d.S;P=Object.assign({id:'',idBack:'',license:''},d.P||{});apply()}
   else{$('#date').value=todayISO();const c=ls.get(CREW_KEY);if(c){Object.assign(S,c);apply()}}
   sizeCanvas();if(d&&d.sig)loadSig(d.sig);
   collect();derive();
