@@ -1,6 +1,6 @@
 {
  "name": "استمارة الاستجابة الفورية لحالات جرس الإنذار",
- "short_name": "جرس الإنذار",
+ "short_name": "نبض",
  "lang": "ar",
  "dir": "rtl",
  "start_url": "./index.html",
