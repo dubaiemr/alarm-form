@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="app-build" content="20261026160208">
+<meta name="app-build" content="20261026163041">
 <meta name="theme-color" content="#0b5e3a">
 <title>نبض – النظام المتكامل للعمليات الميدانية</title>
 <link rel="manifest" href="manifest.json">
@@ -402,7 +402,8 @@ details.head .in{padding:0 14px 14px;display:grid;gap:12px}
 <section class="card" id="t2">
   <div class="card-h"><span class="n"><span class="ic lg ic-crew"></span></span><div><h2>القائم بالجولة الميدانية</h2><p>تنحفظ على جهازك وترجع تلقائياً</p></div></div>
   <div class="card-b">
-    <div class="crew-row"><div class="role"><span class="ic ic-crew"></span>المسؤول <span class="req"></span></div>
+    <div class="crew-row"><div class="role"><span class="ic ic-crew"></span>القائم بالجولة <span class="req"></span></div>
+      <select id="trRole" data-tr="role"><option value="">اختر الصفة</option><option>مسؤول فئة الصباح</option><option>مسؤول الفئة الأولى</option><option>مسؤول الفئة الثانية</option><option>مسؤول الفئة الثالثة</option><option>ضابط قسم أمن الأسواق التجارية</option><option>رئيس قسم أمن الأسواق التجارية</option><option>نائب مدير إدارة أمن الهيئات والمنشآت الحيوية</option><option>مدير إدارة أمن الهيئات والمنشآت الحيوية</option><option>نائب مدير الإدارة العامة لأمن الهيئات والمنشآت والطوارئ</option><option>مدير الإدارة العامة لأمن الهيئات والمنشآت والطوارئ</option></select>
       <input id="trOffName" data-tr="offName" placeholder="الاسم">
       <div class="grid2"><input data-tr="offNo" placeholder="الرقم" inputmode="numeric"><select data-tr="offRank" class="rank"><option value="">الرتبة</option><option>شرطي</option><option>شرطي أول</option><option>عريف</option><option>عريف أول</option><option>رقيب</option><option>رقيب أول</option><option>وكيل</option><option>وكيل أول</option><option>ملازم</option><option>ملازم أول</option><option>نقيب</option><option>رائد</option><option>مقدم</option><option>عقيد</option></select></div></div>
     <div id="trComp" style="display:grid;gap:10px"></div>
@@ -438,9 +439,9 @@ details.head .in{padding:0 14px 14px;display:grid;gap:12px}
   <div class="card-b"><div id="trPhotos" class="phgrid"></div></div>
 </section>
 <section class="card" id="t7">
-  <div class="card-h"><span class="n"><svg class="svg-ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><div><h2>التوقيع</h2><p>توقيع المسؤول</p></div></div>
+  <div class="card-h"><span class="n"><svg class="svg-ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><div><h2>التوقيع</h2><p>توقيع القائم بالجولة</p></div></div>
   <div class="card-b">
-    <div class="f"><div class="sig-tools"><span class="lbl req">توقيع المسؤول</span><button type="button" class="ghost" id="trSigClear">مسح</button></div>
+    <div class="f"><div class="sig-tools"><span class="lbl req">توقيع القائم بالجولة</span><button type="button" class="ghost" id="trSigClear">مسح</button></div>
       <div class="sig-wrap" id="trSigWrap"><canvas id="trSig" style="display:block;width:100%;height:160px;border-radius:14px"></canvas><div class="sig-ph" id="trSigPh">وقّع هنا بإصبعك</div></div></div>
     <div class="alert" id="trAlert"></div>
   </div>
@@ -1614,7 +1615,7 @@ const FCATS=['ص1','ص2','ص3','ف1','ف2','ف3'];
 const TOUR_POINTS=[{a:'ديرة',n:'منطقة 15 خلف توين تاور',p:'ميم 1'},{a:'ديرة',n:'سوق الذهب',p:'ميم 2'},{a:'ديرة',n:'الدورية الراجلة في سوق الذهب',p:'راجلة'},{a:'بر دبي',n:'منطقة السوق الكبير',p:'ميم 3'},{a:'بر دبي',n:'منطقة الكرامة خلف لولو',p:'ميم 4'}];
 const EVENT_TYPES=['سرقة','محاولة سرقة','سطو أو كسر محل','مشاجرة','اشتباه بشخص أو مركبة','جسم مشبوه','حريق','حادث مروري','حالة صحية / إسعاف','عطل في أنظمة الأمن والإنذار','تجمهر أو إزعاج','أخرى'];
 const TDRAFT='draftTour',XDRAFT='draftEvent',TCREW_KEY='alarmForm.tourCrew.v1',XCREW_KEY='alarmForm.eventCrew.v1';
-const TCREW=['offName','offNo','offRank'],XCREW=['offName','offNo','offRank','wrName','wrNo','wrRank'];
+const TCREW=['role','offName','offNo','offRank'],XCREW=['offName','offNo','offRank','wrName','wrNo','wrRank'];
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const nowHM=()=>{const n=new Date();return pad(n.getHours())+':'+pad(n.getMinutes())};
 const dayOf=d=>d?DAYS[new Date(d+'T12:00:00').getDay()]:'';
@@ -1709,11 +1710,19 @@ const xOffs=peopleUI($('#xvOffs'),$('#xvAddOff'),()=>X.offs||(X.offs=[]),xsave,x
 const pplOut=a=>(a||[]).filter(p=>(p.name||'').trim()).map(p=>{const o={name:p.name.trim()};['no','rank','time'].forEach(k=>{if((p[k]||'').trim())o[k]=p[k].trim()});return o});
 function heroSubFor(){if(MODE==='tour')$('#heroSub').textContent='قسم '+DEPT+(T.cat?' · الفئة '+T.cat:'');else if(MODE==='event')$('#heroSub').textContent='قسم '+DEPT+(X.eventNo?' · حدث رقم '+X.eventNo:'')}
 
+/* --- role -> duty category --- */
+const ROLE_CAT={'مسؤول الفئة الأولى':'ف1','مسؤول الفئة الثانية':'ف2','مسؤول الفئة الثالثة':'ف3'};
+function roleCat(changed){const r=T.role||'',sel=$('#trCat'),morning=r==='مسؤول فئة الصباح';
+  [...sel.options].forEach(o=>{if(!o.value)return;o.disabled=morning?!o.value.startsWith('ص'):!!ROLE_CAT[r]&&o.value!==ROLE_CAT[r]});
+  if(ROLE_CAT[r]&&T.cat!==ROLE_CAT[r]){T.cat=ROLE_CAT[r];sel.value=T.cat}
+  else if(changed&&morning&&T.cat&&!T.cat.startsWith('ص')){T.cat='';sel.value=''}}
+$('#trRole').addEventListener('change',()=>{T.role=$('#trRole').value;roleCat(true);tsave()});
 /* --- tour: derive, narrative, progress --- */
 function tAutoNarr(){
   const vis=T.points.filter(p=>p.on),areas=[...new Set(vis.map(p=>p.a))];
   const pats=[...new Set(vis.map(p=>p.p).filter(p=>p&&/ميم|م\s?\d/.test(p)))];
-  let s=`حيث تم المرور على الدوريات${pats.length?' ('+pats.join('، ')+')':''}${areas.length?' في '+areas.join(' و'):''} والتأكد من جاهزيتها وأوضاعها الأمنية`;
+  const who=[T.offRank,T.offName].filter(Boolean).join(' / '),comp=pplOut(T.comp).map(p=>[p.rank,p.name].filter(Boolean).join(' / '));
+  let s=`في اليوم والتاريخ المذكورين أعلاه، قمتُ أنا ${who||'…'}${T.role?' – '+T.role:''}${comp.length?'، برفقة '+comp.join(' و'):''}، بجولة ميدانية تم خلالها المرور على الدوريات${pats.length?' ('+pats.join('، ')+')':''}${areas.length?' في '+areas.join(' و'):''} والتأكد من جاهزيتها وأوضاعها الأمنية`;
   if(vis.some(p=>/راجلة/.test(p.n+p.p)))s+='، والقيام بدورية راجلة في سوق الذهب';
   const n=T.notes.length;
   if(T.status==='مستقرة')s+=n?`، وقد تبين أن الأوضاع الأمنية مستقرة، مع تسجيل ${n===1?'ملاحظة واحدة موضحة':n+' ملاحظات موضحة'} أدناه.`:`، وقد تبين أن الأوضاع الأمنية مستقرة ولم تسجل أي ملاحظات خلال فترة دوام ${T.shift||''}، وكان كل شيء على ما يرام.`;
@@ -1722,13 +1731,13 @@ function tAutoNarr(){
   return s.replace(/\s+،/g,'،').replace(/\s{2,}/g,' ');
 }
 function tderive(){
-  T.day=dayOf(T.date);$('#trDay').value=T.day;if(MODE==='tour')heroSubFor();
+  T.day=dayOf(T.date);$('#trDay').value=T.day;roleCat(false);if(MODE==='tour')heroSubFor();
   if(!T.narrManual){T.narr=tAutoNarr();$('#trNarr').value=T.narr}
   tprogress();
 }
 $('#trReNarr').addEventListener('click',()=>{T.narrManual=false;tsave();toast('✓ تمت التعبئة التلقائية')});
-function treq(){const r=[['date','التاريخ'],['shift','فترة الدوام'],['cat','الفئة المناوبة'],['tFrom','الساعة من'],['tTo','الساعة إلى'],['offName','اسم المسؤول'],['points','النقاط التي تم المرور عليها'],['status','الحالة الأمنية'],['narr','موجز الجولة']];
-  if(T.status==='توجد ملاحظات')r.push(['notes','الملاحظات (ملاحظة واحدة على الأقل)']);r.push(['sig','توقيع المسؤول']);return r}
+function treq(){const r=[['date','التاريخ'],['shift','فترة الدوام'],['cat','الفئة المناوبة'],['tFrom','الساعة من'],['tTo','الساعة إلى'],['role','صفة القائم بالجولة'],['offName','اسم القائم بالجولة'],['points','النقاط التي تم المرور عليها'],['status','الحالة الأمنية'],['narr','موجز الجولة']];
+  if(T.status==='توجد ملاحظات')r.push(['notes','الملاحظات (ملاحظة واحدة على الأقل)']);r.push(['sig','توقيع القائم بالجولة']);return r}
 function tfilled(k){if(k==='points')return T.points.some(p=>p.on);if(k==='notes')return T.notes.length>0;if(k==='sig')return trSig.has;return !!String(T[k]||'').trim()}
 function tprogress(){if(MODE==='tour'){const r=treq();setMeter(Math.round(r.filter(x=>tfilled(x[0])).length/r.length*100))}}
 function notesValid(arr,box){let ok=true;arr.forEach(n=>{const el=box.querySelector(`[data-nid="${n.id}"]`);if(!el)return;
@@ -1842,14 +1851,14 @@ async function renderTour(){
   else D.banner(stable?'الحالة الأمنية: مستقرة  ✓':'الحالة الأمنية: توجد ملاحظات  ⚠',`${n} ${n===1?'ملاحظة':'ملاحظات'}${esc_?' · '+esc_+' مرفوعة للمسؤول الأعلى':''}`,stable?'#e3f4ea':'#fff6e0',stable?'#1e8e4e':'#d48a1a',stable?'#157a40':'#9a5a00');
   D.tiles([['فترة الدوام',T.shift],['الساعة من',T.tFrom],['إلى',T.tTo],['الفئة المناوبة',T.cat]]);
   D.sec('القائم بالجولة الميدانية');
-  D.table([['الصفة',.26],['الاسم',.40],['الرقم',.16],['الرتبة',.18]],[['المسؤول',T.offName,T.offNo,T.offRank]].concat(pplOut(T.comp).map((p,i,a)=>['المرافق'+(a.length>1?' '+(i+1):''),p.name,p.no,p.rank])));
+  D.table([['الصفة',.40],['الاسم',.30],['الرقم',.13],['الرتبة',.17]],[[T.role||'القائم بالجولة',T.offName,T.offNo,T.offRank]].concat(pplOut(T.comp).map((p,i,a)=>['المرافق'+(a.length>1?' '+(i+1):''),p.name,p.no,p.rank])));
   D.sec('النقاط التي تم المرور عليها');
   const vis=T.points.filter(p=>p.on).slice().sort((a,b)=>(a.a===b.a?0:a.a==='ديرة'?-1:b.a==='ديرة'?1:a.a.localeCompare(b.a))||(a.time||'').localeCompare(b.time||''));
   for(let k=0;k<vis.length;k+=12)D.table([['المنطقة',.18],['النقطة',.48],['الدورية',.17],['وقت المرور',.17]],vis.slice(k,k+12).map(p=>[p.a,p.n,p.p,p.time]));
   D.sec('موجز الجولة');D.para(T.narr);
   if(n){D.sec('الملاحظات والإجراءات المتخذة');D.notes(T.notes)}
   if(T.photos.length)D.note(`📎 صور من الجولة الميدانية: ${T.photos.length} ${T.photos.length<=2?'صورة':'صور'} في الصفحات التالية`);
-  await D.sigs([['توقيع المسؤول',person(T.offRank,T.offName),trSig.data()]]);
+  await D.sigs([['توقيع '+(T.role||'القائم بالجولة'),person(T.offRank,T.offName),trSig.data()]]);
   const rep=D.finish();const pages=paginate(rep);
   if(T.photos.length)pages.push(...await photoPages(T.photos,'صور من الجولة الميدانية',[T.day,T.date,'الفئة '+(T.cat||'')].filter(Boolean).join('  ·  '),rep.logos));
   stampFooters(pages,`تقرير النزول الميداني والحالة الأمنية  ·  ${T.date||''}  ·  الفئة ${T.cat||''}  ·  `);return pages;
