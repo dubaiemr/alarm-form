@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; media-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="app-build" content="20261026172312">
+<meta name="app-build" content="20261026223727">
 <meta name="theme-color" content="#0b5e3a">
 <title>نبض – النظام المتكامل للعمليات الميدانية</title>
 <link rel="manifest" href="manifest.json">
@@ -1917,7 +1917,14 @@ window.__nabdhSave=async()=>{ls.set('alarmForm.resume',MODE);
   if(MODE==='ev'){ecollect();ederive();await idb.set(EDRAFT,{E,sig:evSig.data()})}
   else if(MODE==='rep'){collect();derive();await idb.set(DRAFT,{S,P,sig:sigData()})}
   else if(MODE==='tour')await tsave();else if(MODE==='event')await xsave()};
-(async()=>{await init();await einit();await tinit();await xinit();const r=ls.get('alarmForm.resume');try{localStorage.removeItem('alarmForm.resume')}catch(e){}setMode(VIEWS[r]?r:'home',true)})();
+/* ---------- digits: Arabic-Indic / Persian digits are converted to English as the user types (all fields) ---------- */
+const toEnDigits=v=>String(v).replace(/[٠-٩]/g,d=>d.charCodeAt(0)-0x660).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-0x6F0);
+const AR_DIGIT=/[٠-٩۰-۹]/;
+function fixDigits(el){if(!el||typeof el.value!=='string'||!AR_DIGIT.test(el.value)||/^(file|checkbox|radio|date|time)$/.test(el.type||''))return false;
+  let a=null,b=null;try{a=el.selectionStart;b=el.selectionEnd}catch(e){}el.value=toEnDigits(el.value);try{if(a!=null)el.setSelectionRange(a,b)}catch(e){}return true}
+document.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('input,textarea'))fixDigits(t)},true);
+function fixAllDigits(){$$('input,textarea').forEach(el=>{if(fixDigits(el))el.dispatchEvent(new Event('input',{bubbles:true}))})}
+(async()=>{await init();await einit();await tinit();await xinit();fixAllDigits();const r=ls.get('alarmForm.resume');try{localStorage.removeItem('alarmForm.resume')}catch(e){}setMode(VIEWS[r]?r:'home',true)})();
 window.__test={get T(){return T},get X(){return X},renderTour,renderEventRep,tpayload,xpayload,setT(o){Object.assign(T,o);fapply('tr');renderPoints();tComp.render();tNotes.render();tPhotos.render();tderive()},setX(o){Object.assign(X,o);fapply('xv');xOffs.render();xNotes.render();xPhotos.render();xderive()},trSig,xvSig,get files(){return files},openScanner,loadFile,get SC(){return SC},renderReport,renderEval,payload,epayload,dataCode,evDataCode,timeScore,setMode,areaOf,rememberFacility,get S(){return S},get E(){return E},setPhoto(k,d){P[k]=d;showPhoto(k);save()}};
 })();
 </script>
